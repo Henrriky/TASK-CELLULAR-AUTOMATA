@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 public class City {
@@ -51,26 +52,22 @@ public class City {
 		}
 		generations = new HashMap<Integer, double[]>();
 		double[] arr = new double[3];
-		arr[0] = qtdSuscetivel;
-		arr[1] = qtdInfectado;
+		arr[0] = (tamanho*tamanho) * 0.95;
+		arr[1] = (tamanho*tamanho) * 0.05;
 		arr[2] = qtdRemovido;
 		generations.put(0, arr);
 	}
 	
-	public void startGenerations (int numberOfGenerations) {
-		for (int i = 1; i <= numberOfGenerations; i++) {
-			applyNextGenerations(i);
-		}
-	}
-	
-	private void applyNextGenerations (int currentGenerationCounter) {
+	private void applyNextGenerations (Integer currentGenerationCounter) {
 		ArrayList<ArrayList<Person>> nextGeneration = new ArrayList<ArrayList<Person>>();
+		generations.put(currentGenerationCounter, new double[3]);
 		for (int lin = 0; lin < tamanho; lin++) {
 			nextGeneration.add(new ArrayList<Person>());
 			for (int col = 0; col < tamanho; col++) {
 				int numberOfNeighboursInfected = calculateNeighboursInfected(lin, col);
+				double[] generationStatistics = generations.get(currentGenerationCounter);
 				Person currentCell = matriz.get(lin).get(col);
-				Person personWithStateModify = applyRule(numberOfNeighboursInfected, currentCell, generations.put(currentGenerationCounter, new double[3]));
+				Person personWithStateModify = applyRule(numberOfNeighboursInfected, currentCell, generationStatistics);
 				nextGeneration.get(lin).add(personWithStateModify);
 			}
 		}
@@ -98,7 +95,6 @@ public class City {
 	}
 	
 	private Person applyRule (int numberOfNeighboursInfected, Person currentCell, double[] currentGenerationStatistics) {
-		
 		String state = currentCell.getState();
 		double chance = calculateChance(numberOfNeighboursInfected);
 		if (state.equals(StatePossibles.SUSCETIVEL.getStateName())) {
@@ -187,6 +183,31 @@ public class City {
 			return 0;
 		}
 		return indice;
+	}
+	
+	public void startGenerations (int numberOfGenerations) {
+		for (int i = 1; i <= numberOfGenerations; i++) {
+			applyNextGenerations(i);
+		}
+	}
+	
+	
+	public String getStatisticsOfGenerations () {
+		StringBuilder builder = new StringBuilder();
+		for (Map.Entry<Integer, double[]> currentInformationsOfMap : generations.entrySet()) {
+			double[] statistics = currentInformationsOfMap.getValue();
+			builder.append("Geracao ");
+			builder.append(currentInformationsOfMap.getKey());
+			builder.append(" => ");
+			builder.append("Suscetiveis: ");
+			builder.append(statistics[0]);
+			builder.append(" | Infectados: ");
+			builder.append(statistics[1]);
+			builder.append(" | Removidos: ");
+			builder.append(statistics[2]);
+			builder.append("\n");
+		}
+		return builder.toString();
 	}
 	
 	@Override
