@@ -70,7 +70,7 @@ public class City {
 			for (int col = 0; col < tamanho; col++) {
 				int numberOfNeighboursInfected = calculateNeighboursInfected(lin, col);
 				Person currentCell = matriz.get(lin).get(col);
-				Person personWithStateModify = applyRule(numberOfNeighboursInfected, currentCell, generations.put(currentGenerationCounter, new double[3]););
+				Person personWithStateModify = applyRule(numberOfNeighboursInfected, currentCell, generations.put(currentGenerationCounter, new double[3]));
 				nextGeneration.get(lin).add(personWithStateModify);
 			}
 		}
