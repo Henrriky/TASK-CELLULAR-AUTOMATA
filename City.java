@@ -11,7 +11,7 @@ public class City {
 	private ArrayList<ArrayList<Person>> matriz;
 	private int tamanho;
 	private States graph;
-	private Map<Integer, int[]> generations;
+	private Map<Integer, double []> generations;
 	
 	public City (int tamanho) {
         this.tamanho = tamanho;
@@ -24,6 +24,7 @@ public class City {
 		
 		double qtdSuscetivel = (tamanho*tamanho) * 0.95; 
 		double qtdInfectado = (tamanho*tamanho) * 0.05;
+		double qtdRemovido = 0;
 		Random random = new Random();
 		int randomNumber;
 		
@@ -48,15 +49,29 @@ public class City {
 				}
 			}
 		}
+		generations = new HashMap<Integer, double[]>();
+		double[] arr = new double[3];
+		arr[0] = qtdSuscetivel;
+		arr[1] = qtdInfectado;
+		arr[2] = qtdRemovido;
+		generations.put(0, arr);
 	}
 	
-	public void applyNextGenerations () {
+	public void startGenerations (int numberOfGenerations) {
+		for (int i = 1; i <= numberOfGenerations; i++) {
+			applyNextGenerations(i);
+		}
+	}
+	
+	private void applyNextGenerations (int currentGenerationCounter) {
 		ArrayList<ArrayList<Person>> nextGeneration = new ArrayList<ArrayList<Person>>();
 		for (int lin = 0; lin < tamanho; lin++) {
+			nextGeneration.add(new ArrayList<Person>());
 			for (int col = 0; col < tamanho; col++) {
 				int numberOfNeighboursInfected = calculateNeighboursInfected(lin, col);
-				Person currentNeighbour = matriz.get(lin).get(col);
-				applyRule(numberOfNeighboursInfected, currentNeighbour);
+				Person currentCell = matriz.get(lin).get(col);
+				Person personWithStateModify = applyRule(numberOfNeighboursInfected, currentCell, generations.put(currentGenerationCounter, new double[3]););
+				nextGeneration.get(lin).add(personWithStateModify);
 			}
 		}
 		matriz = nextGeneration;
@@ -82,16 +97,19 @@ public class City {
 		return numberOfNeighboursInfected;
 	}
 	
-	private Person applyRule (int numberOfNeighboursInfected, Person currentNeighbour) {
+	private Person applyRule (int numberOfNeighboursInfected, Person currentCell, double[] currentGenerationStatistics) {
 		
-		String state = currentNeighbour.getState();
+		String state = currentCell.getState();
+		double chance = calculateChance(numberOfNeighboursInfected);
 		if (state.equals(StatePossibles.SUSCETIVEL.getStateName())) {
 			Random rand = new Random();
-			boolean willBeInfected = rand.nextDouble() < calculateChance(numberOfNeighboursInfected);
+			boolean willBeInfected = rand.nextDouble() < chance;
 			if (willBeInfected) {
+				currentGenerationStatistics[1]++;
 				return new Person(StatePossibles.INFECTADO); 
 			} else {
-				return currentNeighbour;
+				currentGenerationStatistics[0]++;
+				return currentCell;
 			}
 		} else if (state.equals(StatePossibles.INFECTADO.getStateName())) {
 			boolean willBeRemoved;
@@ -104,15 +122,17 @@ public class City {
 			) {
 			    String adjancentVertexValue = entry.getKey();
 			    Double edgeWeightValue = entry.getValue();
-			    willBeRemoved = edgeWeightValue < calculateChance(numberOfNeighboursInfected);
+			    willBeRemoved = edgeWeightValue < chance;
 			    if (willBeRemoved) {
+			    	currentGenerationStatistics[2]++;
 			    	return new Person(adjancentVertexValue);
 			    } else {
-			    	return currentNeighbour;
+			    	currentGenerationStatistics[1]++;
+			    	return currentCell;
 			    }
 			}
 		} else if (state.equals(StatePossibles.REMOVIDO.getStateName())) {
-			boolean willBeRemoved;
+			boolean willBeInfectedAgain;
 			for (
 				Map.Entry<String, Double> entry 
 				: 
@@ -122,11 +142,13 @@ public class City {
 			) {
 			    String adjancentVertexValue = entry.getKey();
 			    Double edgeWeightValue = entry.getValue();
-			    willBeRemoved = edgeWeightValue < calculateChance(numberOfNeighboursInfected);
-			    if (willBeRemoved) {
+			    willBeInfectedAgain = edgeWeightValue < chance;
+			    if (willBeInfectedAgain) {
+			    	currentGenerationStatistics[1]++;
 			    	return new Person(adjancentVertexValue);
 			    } else {
-			    	return currentNeighbour;
+			    	currentGenerationStatistics[2]++;
+			    	return currentCell;
 			    }
 			}
 		}
