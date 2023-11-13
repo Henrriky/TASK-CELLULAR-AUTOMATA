@@ -8,20 +8,25 @@ import java.util.Set;
 public class States {
 
 	Map<String, HashMap<String, Double>> graph;
-
+	
 	public States () {
 		this.graph = new HashMap<>();
 		this.addFixStates();
 	}
 	
+	/*
+	 * Adicionar mais uma aresta (edge), que é entre R e S, após uma morte
+	 * 
+	 * */
 	private void addFixStates () {
-		this.addVertex("S");
-		this.addVertex("I");
-		this.addVertex("R");
+		this.addVertex(StatePossibles.SUSCETIVEL.getStateName());
+		this.addVertex(StatePossibles.INFECTADO.getStateName());
+		this.addVertex(StatePossibles.REMOVIDO.getStateName());
 		
-		this.addEdge("S", "I", null);
-		this.addEdge("I", "R", 0.6);
-		this.addEdge("R", "I", 0.3);
+		this.addEdge(StatePossibles.SUSCETIVEL.getStateName(), StatePossibles.INFECTADO.getStateName(), null);
+		this.addEdge(StatePossibles.INFECTADO.getStateName(), StatePossibles.REMOVIDO.getStateName(), 0.3);
+		this.addEdge(StatePossibles.REMOVIDO.getStateName(), StatePossibles.INFECTADO.getStateName(), 0.6);
+		this.addEdge(StatePossibles.REMOVIDO.getStateName(), StatePossibles.SUSCETIVEL.getStateName(), 0.1);
 	}
 	
 

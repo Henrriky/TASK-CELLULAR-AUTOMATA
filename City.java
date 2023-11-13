@@ -128,7 +128,8 @@ public class City {
 			    }
 			}
 		} else if (state.equals(StatePossibles.REMOVIDO.getStateName())) {
-			boolean willBeInfectedAgain;
+			boolean willBeInfectedAgain = false;
+			boolean willBeSusceptibleByDie = false;
 			for (
 				Map.Entry<String, Double> entry 
 				: 
@@ -136,16 +137,25 @@ public class City {
 					StatePossibles.REMOVIDO.getStateName()
 				).entrySet()
 			) {
-			    String adjancentVertexValue = entry.getKey();
+			    String adjacentVertexValue = entry.getKey();
 			    Double edgeWeightValue = entry.getValue();
-			    willBeInfectedAgain = edgeWeightValue < chance;
-			    if (willBeInfectedAgain) {
-			    	currentGenerationStatistics[1]++;
-			    	return new Person(adjancentVertexValue);
-			    } else {
-			    	currentGenerationStatistics[2]++;
-			    	return currentCell;
-			    }
+			    
+		        if (adjacentVertexValue.equals(StatePossibles.INFECTADO.getStateName())) {
+		            willBeInfectedAgain = edgeWeightValue < chance;
+		        } else if (adjacentVertexValue.equals(StatePossibles.SUSCETIVEL.getStateName())) {
+		        	willBeSusceptibleByDie = edgeWeightValue < chance;
+		        }
+		        
+		        if (willBeInfectedAgain) {
+		            currentGenerationStatistics[1]++;
+		            return new Person(StatePossibles.INFECTADO.getStateName());
+		        } else if (willBeSusceptibleByDie) {
+		            currentGenerationStatistics[0]++;
+		            return new Person(StatePossibles.SUSCETIVEL.getStateName());
+		        } else {
+		            currentGenerationStatistics[2]++;
+		            return currentCell;
+		        }
 			}
 		}
 		return null;
@@ -208,6 +218,10 @@ public class City {
 			builder.append("\n");
 		}
 		return builder.toString();
+	}
+	
+	public Map<Integer, double []> getStatistics () {
+		return this.generations;
 	}
 	
 	@Override
