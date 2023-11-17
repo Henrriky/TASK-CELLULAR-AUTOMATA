@@ -3,7 +3,7 @@ package WORK;
 public enum StatePossibles {
     SUSCETIVEL("S"),
     INFECTADO("I"),
-    REMOVIDO("R");
+    RECUPERADO("R");
 
     private String stateName;
 
