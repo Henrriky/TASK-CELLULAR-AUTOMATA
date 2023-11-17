@@ -136,11 +136,6 @@ public class City {
 		 */
 	}
 
-	private double calculateChance(int numberOfNeighboursInfected) {
-		double result = (1 - Math.pow(Math.E, -numberOfNeighboursInfected));
-		return result;
-	}
-
 	private int calculateIndexOfNeighbour(int indice) {
 		if (indice < 0) {
 			return tamanho - 1;
@@ -167,7 +162,7 @@ public class City {
 			builder.append(statistics.get(StatePossibles.SUSCETIVEL.getStateName()));
 			builder.append(" | Infectados: ");
 			builder.append(statistics.get(StatePossibles.INFECTADO.getStateName()));
-			builder.append(" | Removidos: ");
+			builder.append(" | Recuperados: ");
 			builder.append(statistics.get(StatePossibles.RECUPERADO.getStateName()));
 			builder.append("\n");
 		}

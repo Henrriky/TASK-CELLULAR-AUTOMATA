@@ -27,9 +27,9 @@ public class States {
 		
 		this.addEdge(StatePossibles.SUSCETIVEL.getStateName(), StatePossibles.RECUPERADO.getStateName(), new ChangeChanceFixed(0.03));
 		this.addEdge(StatePossibles.SUSCETIVEL.getStateName(), StatePossibles.INFECTADO.getStateName(), new ChangeChanceDynamic());
-		this.addEdge(StatePossibles.INFECTADO.getStateName(), StatePossibles.RECUPERADO.getStateName(), new ChangeChanceFixed(0.03));
-		this.addEdge(StatePossibles.INFECTADO.getStateName(), StatePossibles.SUSCETIVEL.getStateName(), new ChangeChanceFixed(0.03));
-		this.addEdge(StatePossibles.RECUPERADO.getStateName(), StatePossibles.SUSCETIVEL.getStateName(), new ChangeChanceFixed(0.03));
+		this.addEdge(StatePossibles.INFECTADO.getStateName(), StatePossibles.RECUPERADO.getStateName(), new ChangeChanceFixed(0.6));
+		this.addEdge(StatePossibles.INFECTADO.getStateName(), StatePossibles.SUSCETIVEL.getStateName(), new ChangeChanceFixed(0.01));
+		this.addEdge(StatePossibles.RECUPERADO.getStateName(), StatePossibles.SUSCETIVEL.getStateName(), new ChangeChanceFixed(0.1));
 	}
 	
 
