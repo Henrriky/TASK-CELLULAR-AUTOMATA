@@ -5,18 +5,28 @@ import java.util.Random;
 public class World {
 
 	private int size;
-
 	private double suscetibleRate = 0.995;
 	private double infectedRate = 1 - suscetibleRate;
 	private int infe;
 	private int susc;
-
-	private int suscetibleCells;
 	private int infectedCells;
 	private int recoveredCells;
-
+	private int suscetibleCells;
+	
 	Cell[][] grid;
 
+	public int getSuscetibleCells() {
+		return suscetibleCells;
+	}
+	
+	public int getInfectedCells() {
+		return infectedCells;
+	}
+	
+	public int getRecoveredCells() {
+		return recoveredCells;
+	}
+	
 	Random randomizer = new Random();
 
 	public World(int size) {
@@ -26,12 +36,12 @@ public class World {
 		grid = new Cell[size][size];
 		populateGrid();
 //		System.out.println(toString());
-		for (int i = 0; i < 1000; i++) {
-			nextGeneration();
-			statistics();
-//			System.out.println(toString());
-
-		}
+//		for (int i = 0; i < generations; i++) {
+//			nextGeneration();
+//			statistics();
+////			System.out.println(toString());
+//
+//		}
 	}
 
 	/*
@@ -43,13 +53,13 @@ public class World {
 	 * 
 	 */
 
-	private void statistics() {
+	public void statistics() {
 		System.out.println("Suscetible: " + suscetibleCells);
 		System.out.println("Infected: " + infectedCells);
 		System.out.println("Recovered: " + recoveredCells + "\n");
 	}
 	
-	private void nextGeneration() {
+	public void nextGeneration() {
 		int[][] newStates = new int[size][size];
 		for (int row = 0; row < size; row++) {
 			for (int column = 0; column < size; column++) {
