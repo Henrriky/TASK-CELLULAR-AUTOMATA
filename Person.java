@@ -28,17 +28,4 @@ class Person {
 	public String toString() {
 		return this.state;
 	}
-	
-	
-	/*
-	private HashMap<String, Double> state;
-	
-	public HashMap<String, Double> getState() {
-		return state;
-	} 
-	
-	public void setState(HashMap<String, Double> state) {	
-		this.state = state;
-	}
-	*/
 }

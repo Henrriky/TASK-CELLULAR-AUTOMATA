@@ -1,65 +1,74 @@
 package WORK;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import java.util.HashMap;
+import java.util.List;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.style.Styler.ChartTheme;
+import org.knowm.xchart.style.lines.SeriesLines;
+import org.knowm.xchart.style.markers.SeriesMarkers; 
 
 public class Program {
-	public static void main(String[] args) {
-		
-		int numberOfGerations = 400;
+	public static void main(String[] args) throws IOException {
+
+		int numberOfGerations = 100;
 		City city = new City(200);
 		city.startGenerations(numberOfGerations);
-		//System.out.println(city.getStatisticsOfGenerations());
-		Map<Integer, double []> statistics = city.getStatistics();
+		List<HashMap<String, Integer>> statistics = city.getStatisticsOfGenerations();
 		
 		
-		XYSeries series1 = new XYSeries("Quantidade de pessoas suscetíveis");
-		XYSeries series2 = new XYSeries("Quantidade de pessoas infectadas");
-		XYSeries series3 = new XYSeries("Quantidade de pessoas removidas");
-		
-		
-		for (int i = 0; i < numberOfGerations; i++) {
-		    series1.add(i, statistics.get(i)[0]);
-		    series2.add(i, statistics.get(i)[1]);
-		    series3.add(i, statistics.get(i)[2]);
-		}	
+        XYChart chart = new XYChartBuilder()
+                .theme(ChartTheme.Matlab)
+                .width(1600)
+                .height(800)
+                .title("Variação dos estados ao longo do tempo")
+                .xAxisTitle("Período de tempo")
+                .yAxisTitle("Quantidades de cada estado")
+                .build();
+        chart.getStyler().setYAxisMax(40000.0);
+        chart.getStyler().setPlotContentSize(0.999);
+        
+        //Percorre as três categorias e coloca cada uma no gráfico
+        for (String categoria : statistics.get(0).keySet()) {
+            int index = 0;
+             //Transforma todos os dados da categoria em um array
+            double[] yAxisValues = statistics
+            		.stream()
+                    .mapToDouble(stat -> stat.get(categoria))
+                    .toArray();
+            //Cria o array contendo o numero de gerações
+            double[] xAxisValues = new double[yAxisValues.length];
+            for (int i = 0; i < xAxisValues.length; i++) {
+            	xAxisValues[i] = index++;
+            }
 
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series1);
-		dataset.addSeries(series2);
-		dataset.addSeries(series3);
-		JFreeChart chart = ChartFactory.createXYLineChart(
-			    "Variação dos estados ao longo do tempo",
-			    "Período de tempo",
-			    "Quantidades de cada estado",
-			    dataset,
-			    PlotOrientation.VERTICAL,
-			    true,
-			    true,
-			    false
-			);
-		ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new Dimension(1000, 500));
-		JFrame frame = new JFrame("Exemplo de gráfico de linhas");
-		frame.add(chartPanel);
-		frame.pack();
-		frame.setVisible(true);
-		
-		
-		
+            XYSeries series = null;
+
+            if (categoria.equals(StatePossibles.INFECTADO.getStateName())) {
+            	series = chart.addSeries("INFECTADOS", xAxisValues, yAxisValues);
+            	series.setLineStyle(SeriesLines.DASH_DASH);
+                series.setLineColor(Color.RED);
+            } else if (categoria.equals(StatePossibles.RECUPERADO.getStateName())) {
+            	series = chart.addSeries("RECUPERADOS", xAxisValues, yAxisValues);
+            	series.setLineStyle(SeriesLines.DASH_DOT);
+                series.setLineColor(Color.BLUE);
+            } else if (categoria.equals(StatePossibles.SUSCETIVEL.getStateName())) {
+            	series = chart.addSeries("SUSCETIVEIS", xAxisValues, yAxisValues);
+                series.setLineStyle(SeriesLines.SOLID);
+                series.setLineColor(Color.GREEN);
+            }
+
+
+            series.setMarker(SeriesMarkers.NONE);
+        }
+
+        new SwingWrapper<>(chart).displayChart();
+        BitmapEncoder.saveBitmap(chart, "./GRAFICO_AUTOMATO_CELULAR", BitmapFormat.PNG);			
 	}
 }
