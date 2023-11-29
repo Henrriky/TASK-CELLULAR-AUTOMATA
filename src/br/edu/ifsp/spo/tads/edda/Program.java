@@ -21,20 +21,21 @@ public class Program {
 	public static void main(String[] args) throws IOException {
 
 		int numberOfGerations = 100;
-		City city = new City(200);
+		int size = 200;
+		City city = new City(size);
 		city.startGenerations(numberOfGerations);
 		List<HashMap<String, Integer>> statistics = city.getStatisticsOfGenerations();
 		
 		
         XYChart chart = new XYChartBuilder()
-                .theme(ChartTheme.Matlab)
+                .theme(ChartTheme.GGPlot2)
                 .width(1600)
                 .height(800)
                 .title("Variação dos estados ao longo do tempo")
-                .xAxisTitle("Período de tempo")
-                .yAxisTitle("Quantidades de cada estado")
+                .xAxisTitle("Gerações")
+                .yAxisTitle("Quantidade de pessoas em cada estado")
                 .build();
-        chart.getStyler().setYAxisMax(40000.0);
+        chart.getStyler().setYAxisMax((double) size * size);
         chart.getStyler().setPlotContentSize(0.999);
         
         //Percorre as três categorias e coloca cada uma no gráfico
@@ -54,15 +55,15 @@ public class Program {
             XYSeries series = null;
 
             if (categoria.equals(StatePossibles.INFECTADO.getStateName())) {
-            	series = chart.addSeries("INFECTADOS", xAxisValues, yAxisValues);
-            	series.setLineStyle(SeriesLines.DASH_DASH);
+            	series = chart.addSeries("Infectados", xAxisValues, yAxisValues);
+            	series.setLineStyle(SeriesLines.SOLID);
                 series.setLineColor(Color.RED);
             } else if (categoria.equals(StatePossibles.RECUPERADO.getStateName())) {
-            	series = chart.addSeries("RECUPERADOS", xAxisValues, yAxisValues);
-            	series.setLineStyle(SeriesLines.DASH_DOT);
+            	series = chart.addSeries("Recuperados", xAxisValues, yAxisValues);
+            	series.setLineStyle(SeriesLines.SOLID);
                 series.setLineColor(Color.BLUE);
             } else if (categoria.equals(StatePossibles.SUSCETIVEL.getStateName())) {
-            	series = chart.addSeries("SUSCETIVEIS", xAxisValues, yAxisValues);
+            	series = chart.addSeries("Suscetíveis", xAxisValues, yAxisValues);
                 series.setLineStyle(SeriesLines.SOLID);
                 series.setLineColor(Color.GREEN);
             }
