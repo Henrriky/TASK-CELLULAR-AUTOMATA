@@ -73,6 +73,6 @@ public class Program {
         }
 
         new SwingWrapper<>(chart).displayChart();
-        BitmapEncoder.saveBitmap(chart, "./GRAFICO_AUTOMATO_CELULAR", BitmapFormat.PNG);			
+        BitmapEncoder.saveBitmap(chart, "./chart/GRAFICO_AUTOMATO_CELULAR", BitmapFormat.PNG);			
 	}
 }
