@@ -24,8 +24,7 @@ public class City {
 	}
 
 	private void createPopulation() {
-
-		double susceptibleRate = 0.995;
+		double susceptibleRate = 0.95;
 		double infectedRate = 1 - susceptibleRate;
 		int infectedAmount = (int) (size * size * infectedRate);
 		if(infectedAmount == 0)
@@ -35,32 +34,31 @@ public class City {
 			susceptibleAmount--;
 		int currentSusceptibleAmount = 0;
 		int currentInfectedAmount = 0;
-		Random random = new Random();
-		double randomNumber;
-		
-		HashMap<String, Integer> stats = new HashMap<String,Integer>();
-		stats.put(StatePossibles.RECUPERADO.getStateName(), 0);
+		Random randomNumber = new Random();
 		
 		for (int lin = 0; lin < size; lin++) {
 			matrix.add(new ArrayList<Person>());
 			for (int col = 0; col < size; col++) {
 				Person cell = new Person();
-				randomNumber = random.nextDouble();
-				if (randomNumber < susceptibleRate && currentSusceptibleAmount < susceptibleAmount) { 
+				if (randomNumber.nextDouble() < susceptibleRate && currentSusceptibleAmount < susceptibleAmount) { 
 					cell.setState(StatePossibles.SUSCETIVEL);
 					matrix.get(lin).add(cell);
-					stats.put(StatePossibles.SUSCETIVEL.getStateName(), ++currentSusceptibleAmount);
+					currentSusceptibleAmount++;
 				} else if(currentInfectedAmount < infectedAmount){
 					cell.setState(StatePossibles.INFECTADO);
 					matrix.get(lin).add(cell);
-					stats.put(StatePossibles.INFECTADO.getStateName(), ++currentInfectedAmount);
+					currentInfectedAmount++;
 				} else {
 					cell.setState(StatePossibles.SUSCETIVEL);
 					matrix.get(lin).add(cell);
-					stats.put(StatePossibles.SUSCETIVEL.getStateName(), ++currentSusceptibleAmount);
+					currentSusceptibleAmount++;
 				}
 			}
 		}
+		HashMap<String, Integer> stats = new HashMap<String,Integer>();
+		stats.put(StatePossibles.SUSCETIVEL.getStateName(), currentSusceptibleAmount);
+		stats.put(StatePossibles.INFECTADO.getStateName(), currentInfectedAmount);
+		stats.put(StatePossibles.RECUPERADO.getStateName(), 0);
 		generationsStatistics = new ArrayList<HashMap<String, Integer>>();
 		generationsStatistics.add(0, stats);
 	}
@@ -69,26 +67,6 @@ public class City {
 		for (int i = 1; i <= numberOfGenerations; i++) {
 			applyNextGenerations(i);
 		}
-		System.out.println(getStatisticsOfGenerationsToString()); 
-	}
-
-	private int calculateNeighboursInfected(int lin, int col) {
-		int numberOfNeighboursInfected = 0;
-		for (int i = -1; i <= 1; i++) {
-			for (int j = -1; j <= 1; j++) {
-				int indexLin = this.calculateIndexOfNeighbour(lin + i);
-				int indexCol = this.calculateIndexOfNeighbour(col + j);
-				boolean isCurrentCell = (indexLin == lin && indexCol == col);
-				if (!isCurrentCell) {
-					Person currentNeighbour = matrix.get(indexLin).get(indexCol);
-					boolean isInfected = currentNeighbour.getState().equals(StatePossibles.INFECTADO.getStateName());
-					if (isInfected) {
-						++numberOfNeighboursInfected;
-					}
-				}
-			}
-		}
-		return numberOfNeighboursInfected;
 	}
 
 	private void applyNextGenerations(Integer currentGenerationCounter) {
@@ -136,13 +114,32 @@ public class City {
 		return currentPerson;
 	}
 
-	private int calculateIndexOfNeighbour(int indice) {
-		if (indice < 0) {
+	private int calculateNeighboursInfected(int lin, int col) {
+		int numberOfNeighboursInfected = 0;
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+				int indexLin = this.calculateIndexOfNeighbour(lin + i);
+				int indexCol = this.calculateIndexOfNeighbour(col + j);
+				boolean isCurrentCell = (indexLin == lin && indexCol == col);
+				if (!isCurrentCell) {
+					Person currentNeighbour = matrix.get(indexLin).get(indexCol);
+					boolean isInfected = currentNeighbour.getState().equals(StatePossibles.INFECTADO.getStateName());
+					if (isInfected) {
+						++numberOfNeighboursInfected;
+					}
+				}
+			}
+		}
+		return numberOfNeighboursInfected;
+	}
+
+	private int calculateIndexOfNeighbour(int index) {
+		if (index < 0) {
 			return size - 1;
-		} else if (indice == size) {
+		} else if (index == size) {
 			return 0;
 		}
-		return indice;
+		return index;
 	}
 
 	public String getStatisticsOfGenerationsToString() {
